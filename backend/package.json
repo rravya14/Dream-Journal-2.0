@@ -1,9 +1,9 @@
 {
-  "name": "rethink-backend",
+  "name": "dreamjournal-backend",
   "version": "1.0.0",
   "description": "",
   "license": "MIT",
-  "author": "Krishiv",
+  "author": "Bhavya",
   "type": "module",
   "main": "server.js",
   "scripts": {
