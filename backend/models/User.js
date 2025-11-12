@@ -3,6 +3,11 @@ import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 
 const userSchema = new mongoose.Schema(
     {
+        name: {
+            type: String,
+            required: [true, "Name is required"],
+            trim: true,
+        },
         username: {
             type: String,
             required: [true, "Username is required"],
