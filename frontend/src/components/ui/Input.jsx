@@ -1,8 +1,10 @@
-export default function Input({ 
-  label, 
-  error, 
-  className = "", 
-  ...props 
+import { memo } from 'react';
+
+const Input = memo(function Input({
+  label,
+  error,
+  className = '',
+  ...props
 }) {
   return (
     <div className="w-full">
@@ -20,4 +22,6 @@ export default function Input({
       )}
     </div>
   );
-}
+});
+
+export default Input;

@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [mounted, setMounted] = useState(true);
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-linear-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a]">
@@ -17,7 +15,7 @@ export default function Home() {
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
         <div className="text-center max-w-5xl mx-auto">
           {/* Hero Moon */}
-          <div className={`inline-block mb-8 transition-all duration-700 ${mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className="inline-block mb-8 transition-all duration-700 opacity-100 scale-100">
             <div className="relative w-20 h-20 mx-auto">
               <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 rounded-full animate-glow"></div>
               <div className="absolute inset-1 bg-linear-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center">

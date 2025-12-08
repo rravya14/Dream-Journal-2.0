@@ -1,4 +1,4 @@
-export default function Topbar({ user }) {
+export default function Topbar() {
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -7,7 +7,7 @@ export default function Topbar({ user }) {
   });
 
   return (
-    <header className="glass-card rounded-2xl p-6 mb-6\">
+    <header className="glass-card rounded-2xl p-6 mb-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

@@ -1,7 +1,9 @@
-export default function Card({ 
-  children, 
-  className = "", 
-  ...props 
+import { memo } from 'react';
+
+const Card = memo(function Card({
+  children,
+  className = '',
+  ...props
 }) {
   return (
     <div
@@ -11,4 +13,6 @@ export default function Card({
       {children}
     </div>
   );
-}
+});
+
+export default Card;

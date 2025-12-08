@@ -15,8 +15,8 @@ const signup = async (req, res) => {
         });
 
         if (existingUser) {
-            return res.status(400).json({ message: "Username or email already in use" })
-        };
+            return res.status(400).json({ message: "Username or email already in use" });
+        }
 
         const newUser = await User.create({ name, username, email, password });
 
@@ -33,8 +33,8 @@ const signup = async (req, res) => {
                 email: newUser.email,
             },
         });
-    } catch (err) {
-        console.error("Error signing up!", err);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 

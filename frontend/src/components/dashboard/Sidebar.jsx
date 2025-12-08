@@ -21,12 +21,12 @@ export default function Sidebar({ userName = "User" }) {
         method: 'POST',
         credentials: 'include',
       });
-      
+
       if (response.ok) {
         router.push('/login');
       }
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Handle logout error silently
     }
   };
 
