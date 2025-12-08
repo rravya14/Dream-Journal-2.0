@@ -130,4 +130,52 @@ export const dreamsApi = {
   },
 };
 
+// Tags API
+export const tagsApi = {
+  getAll: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/tags${query ? `?${query}` : ''}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse(response);
+  },
+
+  getById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse(response);
+  },
+
+  create: async (tagData) => {
+    const response = await fetch(`${API_BASE_URL}/tags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(tagData),
+    });
+    return handleResponse(response);
+  },
+
+  update: async (id, tagData) => {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(tagData),
+    });
+    return handleResponse(response);
+  },
+
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    return handleResponse(response);
+  },
+};
+
 export { ApiError };

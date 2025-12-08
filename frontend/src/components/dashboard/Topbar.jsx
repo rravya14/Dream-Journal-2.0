@@ -1,4 +1,9 @@
+"use client";
+
+import { useAuth } from "@/lib/auth";
+
 export default function Topbar() {
+  const { user } = useAuth();
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',

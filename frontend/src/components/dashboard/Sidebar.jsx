@@ -11,6 +11,7 @@ export default function Sidebar({ userName = "User" }) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: "🏠", href: "/dashboard" },
     { id: "dreams", label: "Dreams", icon: "🌙", href: "/dashboard/dreams" },
+    { id: "tags", label: "Tags", icon: "🏷️", href: "/dashboard/tags" },
     { id: "analytics", label: "Analytics", icon: "📊", href: "/dashboard/analytics" },
     { id: "summary", label: "Summary", icon: "📝", href: "/dashboard/summary" },
   ];
