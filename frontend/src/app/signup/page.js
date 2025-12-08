@@ -1,154 +1,185 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import LogoutButton from "@/components/LogoutButton";
-import { signupUser } from "@/lib/api";
+import { authApi } from "@/lib/api";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
-const initialState = {
+export default function SignupPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
     password: "",
-};
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
-export default function SignupPage() {
-    const [form, setForm] = useState(initialState);
-    const [status, setStatus] = useState({ type: "idle", message: "" });
+  const validateForm = () => {
+    const newErrors = {};
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
-    };
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setStatus({ type: "loading", message: "Creating your account..." });
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    }
 
-        try {
-            const data = await signupUser(form);
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
 
-            setStatus({
-                type: "success",
-                message: data.message || "Signup successful",
-            });
-            setForm(initialState);
-        } catch (error) {
-            setStatus({ type: "error", message: error.message });
-        }
-    };
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
 
-    return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-12 text-slate-900">
-            <div className="w-full max-w-md space-y-6">
-                <header className="space-y-2 text-center">
-                    <h1 className="text-2xl font-semibold">Create an account</h1>
-                    <p className="text-sm text-slate-600">
-                        Fill in your details to get started with Dream Journal 2.0.
-                    </p>
-                </header>
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-                <form onSubmit={handleSubmit} className="space-y-4 rounded border border-slate-200 p-6 shadow-sm">
-                    <div className="space-y-1">
-                        <label htmlFor="name" className="text-sm font-medium text-slate-700">
-                            Name
-                        </label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            required
-                            value={form.name}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label
-                            htmlFor="username"
-                            className="text-sm font-medium text-slate-700"
-                        >
-                            Username
-                        </label>
-                        <input
-                            id="username"
-                            name="username"
-                            type="text"
-                            required
-                            value={form.username}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                            autoComplete="username"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label htmlFor="email" className="text-sm font-medium text-slate-700">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            value={form.email}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                            autoComplete="email"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label
-                            htmlFor="password"
-                            className="text-sm font-medium text-slate-700"
-                        >
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={form.password}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                            autoComplete="new-password"
-                        />
-                    </div>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+    setApiError("");
+  };
 
-                    <button
-                        type="submit"
-                        disabled={status.type === "loading"}
-                        className="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-70"
-                    >
-                        {status.type === "loading" ? "Creating account..." : "Sign Up"}
-                    </button>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
-                    <div className="flex items-center justify-between text-sm text-slate-600">
-                        <span>Already have an account?</span>
-                        <Link href="/login" className="text-slate-800 underline">
-                            Log In
-                        </Link>
-                    </div>
-                </form>
+    setLoading(true);
+    setApiError("");
 
-                {status.type !== "idle" && (
-                    <p
-                        className={`text-sm ${status.type === "success"
-                            ? "text-green-600"
-                            : status.type === "error"
-                                ? "text-red-600"
-                                : "text-slate-600"
-                            }`}
-                    >
-                        {status.message}
-                    </p>
-                )}
+    try {
+      await authApi.signup(formData);
+      router.push("/dashboard");
+    } catch (error) {
+      setApiError(error.message || "Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <div className="flex justify-center">
-                    <LogoutButton />
-                </div>
+  return (
+    <main className="min-h-screen flex items-center justify-center p-4 bg-liner-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] relative overflow-hidden">
+      {/* Stars */}
+      <div className="absolute inset-0">
+        <div className="stars animate-twinkle"></div>
+      </div>
+      
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-block mb-4">
+            <div className="w-16 h-16 rounded-full bg-liner-to-br from-blue-500 to-purple-500 flex items-center justify-center animate-glow">
+              <span className="text-3xl">🌙</span>
             </div>
-        </main>
-    );
+          </div>
+          <h1 className="text-3xl font-bold bg-liner-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+            Create Account
+          </h1>
+          <p className="text-slate-400">
+            Start journaling your dreams
+          </p>
+        </div>
+
+        <Card>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Name"
+              name="name"
+              type="text"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={handleChange}
+              error={errors.name}
+              disabled={loading}
+            />
+
+            <Input
+              label="Username"
+              name="username"
+              type="text"
+              placeholder="Choose a username"
+              value={formData.username}
+              onChange={handleChange}
+              error={errors.username}
+              disabled={loading}
+              autoComplete="username"
+            />
+
+            <Input
+              label="Email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              error={errors.email}
+              disabled={loading}
+              autoComplete="email"
+            />
+
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              disabled={loading}
+              autoComplete="new-password"
+            />
+
+            {apiError && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 backdrop-blur-sm">
+                <p className="text-sm text-red-400">{apiError}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? "Creating account..." : "Sign Up"}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Already have an account?{" "}
+              <Link 
+                href="/login" 
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Log in
+              </Link>
+            </p>
+          </div>
+        </Card>
+      </div>
+    </main>
+  );
 }
+
 

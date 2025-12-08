@@ -1,114 +1,145 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import LogoutButton from "@/components/LogoutButton";
-import { loginUser } from "@/lib/api";
-
-const initialState = {
-    identifier: "",
-    password: "",
-};
+import { authApi } from "@/lib/api";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 export default function LoginPage() {
-    const [form, setForm] = useState(initialState);
-    const [status, setStatus] = useState({ type: "idle", message: "" });
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    identifier: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
-    };
+  const validateForm = () => {
+    const newErrors = {};
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setStatus({ type: "loading", message: "Signing you in..." });
+    if (!formData.identifier.trim()) {
+      newErrors.identifier = "Email or username is required";
+    }
 
-        try {
-            const data = await loginUser(form);
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    }
 
-            setStatus({ type: "success", message: data.message || "Login successful" });
-            setForm(initialState);
-        } catch (error) {
-            setStatus({ type: "error", message: error.message });
-        }
-    };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-12 text-slate-900">
-            <div className="w-full max-w-md space-y-6">
-                <header className="space-y-2 text-center">
-                    <h1 className="text-2xl font-semibold">Welcome back</h1>
-                    <p className="text-sm text-slate-600">
-                        Log in with your username or email to continue.
-                    </p>
-                </header>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+    setApiError("");
+  };
 
-                <form onSubmit={handleSubmit} className="space-y-4 rounded border border-slate-200 p-6 shadow-sm">
-                    <div className="space-y-1">
-                        <label htmlFor="identifier" className="text-sm font-medium text-slate-700">
-                            Username or Email
-                        </label>
-                        <input
-                            id="identifier"
-                            name="identifier"
-                            type="text"
-                            required
-                            value={form.identifier}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                            autoComplete="username"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label htmlFor="password" className="text-sm font-medium text-slate-700">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={form.password}
-                            onChange={handleChange}
-                            className="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
-                            autoComplete="current-password"
-                        />
-                    </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
-                    <button
-                        type="submit"
-                        disabled={status.type === "loading"}
-                        className="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-70"
-                    >
-                        {status.type === "loading" ? "Signing in..." : "Login"}
-                    </button>
+    setLoading(true);
+    setApiError("");
 
-                    <div className="flex items-center justify-between text-sm text-slate-600">
-                        <span>Need an account?</span>
-                        <Link href="/signup" className="text-slate-800 underline">
-                            Sign Up
-                        </Link>
-                    </div>
-                </form>
+    try {
+      await authApi.login(formData);
+      router.push("/dashboard");
+    } catch (error) {
+      setApiError(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                {status.type !== "idle" && (
-                    <p
-                        className={`text-sm ${status.type === "success"
-                            ? "text-green-600"
-                            : status.type === "error"
-                                ? "text-red-600"
-                                : "text-slate-600"
-                            }`}
-                    >
-                        {status.message}
-                    </p>
-                )}
-
-                <div className="flex justify-center">
-                    <LogoutButton />
-                </div>
+  return (
+    <main className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] relative overflow-hidden">
+      {/* Stars */}
+      <div className="absolute inset-0">
+        <div className="stars animate-twinkle"></div>
+      </div>
+      
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-block mb-4">
+            <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center animate-glow">
+              <span className="text-3xl">🌙</span>
             </div>
-        </main>
-    );
+          </div>
+          <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-slate-400">
+            Log in to continue your dream journey
+          </p>
+        </div>
+
+        <Card>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Email or Username"
+              name="identifier"
+              type="text"
+              placeholder="Enter your email or username"
+              value={formData.identifier}
+              onChange={handleChange}
+              error={errors.identifier}
+              disabled={loading}
+              autoComplete="username"
+            />
+
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              disabled={loading}
+              autoComplete="current-password"
+            />
+
+            {apiError && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 backdrop-blur-sm">
+                <p className="text-sm text-red-400">{apiError}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? "Logging in..." : "Log In"}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Don&apos;t have an account?{" "}
+              <Link 
+                href="/signup" 
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </Card>
+      </div>
+    </main>
+  );
 }
+
 

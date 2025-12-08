@@ -1,26 +1,202 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Night Blue Dream Theme */
+  --night-sky: #0f172a;
+  --night-deep: #1e293b;
+  --night-blue: #334155;
+  --night-card: #1e293b;
+  --night-accent: #60a5fa;
+  --night-purple: #a78bfa;
+  --night-pink: #f0abfc;
+  --star-glow: #fef3c7;
+  --cloud-light: rgba(255, 255, 255, 0.1);
+  --cloud-lighter: rgba(255, 255, 255, 0.05);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-night: rgba(255, 255, 255, 0.1);
+  
+  --background: var(--night-sky);
+  --foreground: var(--text-primary);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Professional Animations */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+  }
+  to { 
+    opacity: 1; 
   }
 }
 
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% { 
+    opacity: 0.8; 
+  }
+  50% { 
+    opacity: 0.3; 
+  }
+}
+
+@keyframes subtleGlow {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); 
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(96, 165, 250, 0.4); 
+  }
+}
+
+/* Base Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--night-sky);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+/* Glass Effects */
+.glass-night {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: subtleGlow 3s ease-in-out infinite;
+}
+
+/* Delay Classes */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--night-accent), var(--night-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Starry Background */
+.stars {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 
+    200px 100px white,
+    400px 200px white,
+    600px 150px white,
+    800px 300px white,
+    100px 400px white,
+    300px 500px white,
+    500px 450px white,
+    700px 250px white,
+    900px 400px white,
+    150px 250px white,
+    350px 350px white,
+    550px 100px white,
+    750px 500px white,
+    950px 150px white,
+    50px 50px white,
+    250px 450px white,
+    450px 300px white,
+    650px 400px white,
+    850px 100px white,
+    1000px 350px white;
+}
+
+/* Cloud Shapes */
+.cloud {
+  background: var(--cloud-light);
+  border-radius: 100px;
+  backdrop-filter: blur(5px);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: var(--cloud-light);
+  border-radius: 100px;
+}
+
+.cloud::before {
+  width: 50px;
+  height: 50px;
+  top: -25px;
+  left: 10px;
+}
+
+.cloud::after {
+  width: 60px;
+  height: 60px;
+  top: -30px;
+  right: 10px;
 }
