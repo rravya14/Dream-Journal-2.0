@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import connectDB from './config/db.js'
 import authRoutes from "./routes/authRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
+import dreamRoutes from "./routes/dreamRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -25,6 +27,8 @@ app.get("/api/health", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/tags", tagRoutes);
+app.use("/api/dreams", dreamRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

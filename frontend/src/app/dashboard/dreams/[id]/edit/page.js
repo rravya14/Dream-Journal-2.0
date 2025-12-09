@@ -2,42 +2,42 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { tagsApi } from "@/lib/api";
-import TagForm from "@/components/TagForm";
+import { dreamsApi } from "@/lib/api";
+import DreamForm from "@/components/DreamForm";
 
-export default function EditTagPage() {
+export default function EditDreamPage() {
   const router = useRouter();
   const params = useParams();
-  const [tag, setTag] = useState(null);
+  const [dream, setDream] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchTag = useCallback(async () => {
+  const fetchDream = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await tagsApi.getById(params.id);
-      setTag(data);
+      const data = await dreamsApi.getById(params.id);
+      setDream(data);
       setError("");
     } catch (err) {
-      setError(err.message || "Failed to fetch tag");
+      setError(err.message || "Failed to fetch dream");
     } finally {
       setLoading(false);
     }
   }, [params.id]);
 
   useEffect(() => {
-    fetchTag();
-  }, [fetchTag]);
+    fetchDream();
+  }, [fetchDream]);
 
   const handleSubmit = async (formData) => {
     try {
       setSubmitting(true);
       setError("");
-      await tagsApi.update(params.id, formData);
-      router.push("/dashboard/tags");
+      await dreamsApi.update(params.id, formData);
+      router.push(`/dashboard/dreams/${params.id}`);
     } catch (err) {
-      setError(err.message || "Failed to update tag");
+      setError(err.message || "Failed to update dream");
       setSubmitting(false);
     }
   };
@@ -45,8 +45,8 @@ export default function EditTagPage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <div className="max-w-2xl mx-auto text-center py-12 text-gray-400">
-          Loading sticker...
+        <div className="max-w-4xl mx-auto text-center py-12 text-gray-400">
+          Loading dream...
         </div>
       </div>
     );
@@ -54,19 +54,19 @@ export default function EditTagPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <header className="glass-card rounded-2xl p-6 mb-6">
           <button
             onClick={() => router.back()}
             className="text-slate-400 hover:text-white mb-4 flex items-center gap-2 transition-colors"
           >
-            <span>←</span> Back to Stickers
+            <span>←</span> Back
           </button>
           <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2 flex items-center gap-3">
             <span className="text-3xl">✏️</span>
-            Edit Sticker
+            Edit Dream
           </h1>
-          <p className="text-slate-400">Update your sticker details</p>
+          <p className="text-slate-400">Update the details of your dream</p>
         </header>
 
         {error && (
@@ -76,9 +76,9 @@ export default function EditTagPage() {
         )}
 
         <div className="glass-card rounded-2xl p-6">
-          {tag && (
-            <TagForm
-              tag={tag}
+          {dream && (
+            <DreamForm
+              dream={dream}
               onSubmit={handleSubmit}
               onCancel={() => router.back()}
             />
@@ -87,7 +87,7 @@ export default function EditTagPage() {
 
         {submitting && (
           <div className="text-center mt-4 text-gray-400">
-            Updating tag...
+            Updating dream...
           </div>
         )}
       </div>

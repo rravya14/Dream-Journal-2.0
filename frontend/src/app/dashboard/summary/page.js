@@ -1,84 +1,106 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { authApi } from "@/lib/api";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Card from "@/components/ui/Card";
+import { aiApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 export default function SummaryPage() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    checkAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchSummary = useCallback(async () => {
+    try {
+      setGenerating(true);
+      setError("");
+      const data = await aiApi.getWeeklySummary();
+      setSummary(data.summary || data);
+    } catch (err) {
+      setError(err.message || "Failed to generate summary");
+    } finally {
+      setGenerating(false);
+    }
   }, []);
 
-  const checkAuth = async () => {
-    try {
-      const data = await authApi.getProfile();
-      setUser(data.user || data);
-    } catch (error) {
-      router.push("/login");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div className="min-h-screen bg-liner-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center text-slate-400">Loading...</div>;
-  if (!user) return null;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-liner-to-b from-[#0f172a] via-[#1e293b] to-[#0f172a] relative overflow-hidden">
-      <div className="absolute inset-0"><div className="stars animate-twinkle"></div></div>
-      <Sidebar user={user} />
-      <main className="ml-64 p-6 relative z-10">
-        <h1 className="text-3xl font-bold bg-liner-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
-          📝 Weekly Mind Summary
-        </h1>
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <header className="glass-card rounded-2xl p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2 flex items-center gap-3">
+                <span className="text-3xl">🎯</span>
+                Weekly Summary
+              </h1>
+              <p className="text-slate-400">AI-powered insights from your weekly dreams</p>
+            </div>
+            <button
+              onClick={fetchSummary}
+              disabled={generating}
+              className="px-5 py-2.5 bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition font-medium shadow-lg hover:shadow-purple-500/50 hover:scale-105 duration-200 flex items-center gap-2">
+              {generating ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <span>✦</span>
+                  Generate Summary
+                </>
+              )}
+            </button>
+          </div>
+        </header>
         
-        <Card className="mb-6">
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl mb-6">
+            {error}
+          </div>
+        )}
+        
+        <div className="glass-card rounded-2xl p-6 mb-6">
           <div className="flex items-start gap-4">
-            <div className="text-4xl">🤖</div>
+            <div className="text-4xl">✦</div>
             <div className="flex-1">
               <h3 className="font-semibold text-white mb-2">AI-Powered Insights</h3>
-              <p className="text-slate-400">
-                Your weekly summary will be generated automatically after you record multiple dreams.
-                The AI will analyze patterns, emotions, and symbols to provide personalized insights.
+              <p className="text-slate-400 text-sm">
+                Click the button above to generate your weekly dream summary. The AI will analyze patterns, emotions, and symbols from the last 7 days.
               </p>
             </div>
           </div>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <h3 className="font-semibold text-white mb-4">This Week&apos;s Themes</h3>
-            <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-liner-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 text-center text-slate-400">
-                No themes detected yet
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="font-semibold text-white mb-4">Emotional Overview</h3>
-            <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-liner-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center text-slate-400">
-                Record dreams to see your emotional patterns
-              </div>
-            </div>
-          </Card>
-
-          <Card className="md:col-span-2">
-            <h3 className="font-semibold text-white mb-4">Personalized Recommendations</h3>
-            <div className="p-4 rounded-lg bg-linear-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 text-center text-slate-400">
-              AI recommendations will appear here based on your dream patterns
-            </div>
-          </Card>
         </div>
-      </main>
+
+        {summary && (
+          <div className="glass-card rounded-2xl p-6 bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30">
+            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+              <span>✨</span>
+              Your Weekly Summary
+            </h3>
+            <div className="prose prose-invert max-w-none">
+              <p className="text-white whitespace-pre-wrap leading-relaxed">{summary}</p>
+            </div>
+          </div>
+        )}
+
+        {!summary && !generating && (
+          <div className="glass-card rounded-2xl p-12 text-center">
+            <div className="text-6xl mb-4">💭</div>
+            <p className="text-slate-400 mb-2">No summary generated yet</p>
+            <p className="text-sm text-slate-500">Click &quot;Generate Summary&quot; to get AI insights from your weekly dreams</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

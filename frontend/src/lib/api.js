@@ -178,4 +178,25 @@ export const tagsApi = {
   },
 };
 
+// AI API
+export const aiApi = {
+  interpretDream: async (dreamId) => {
+    const response = await fetch(`${API_BASE_URL}/ai/interpret`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ dreamId }),
+    });
+    return handleResponse(response);
+  },
+
+  getWeeklySummary: async () => {
+    const response = await fetch(`${API_BASE_URL}/ai/summary/weekly`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return handleResponse(response);
+  },
+};
+
 export { ApiError };

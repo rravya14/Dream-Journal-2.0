@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/lib/auth";
 
-export default function Topbar() {
+export default function Topbar({ stats }) {
   const { user } = useAuth();
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -23,11 +23,11 @@ export default function Topbar() {
         <div className="hidden md:flex items-center gap-4">
           <div className="glass-night rounded-xl px-4 py-2 transition-transform duration-200 hover:scale-105">
             <p className="text-xs text-slate-400">Total Dreams</p>
-            <p className="text-2xl font-bold text-blue-400">0</p>
+            <p className="text-2xl font-bold text-blue-400">{stats?.totalDreams || 0}</p>
           </div>
           <div className="glass-night rounded-xl px-4 py-2 transition-transform duration-200 hover:scale-105">
             <p className="text-xs text-slate-400">This Week</p>
-            <p className="text-2xl font-bold text-purple-400">0</p>
+            <p className="text-2xl font-bold text-purple-400">{stats?.thisWeek || 0}</p>
           </div>
         </div>
       </div>

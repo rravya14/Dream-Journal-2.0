@@ -3,7 +3,7 @@
 import Card from '@/components/ui/Card';
 import Link from 'next/link';
 
-export default function Widgets() {
+export default function Widgets({ stats, loading }) {
   const quickActions = [
     {
       title: "Record a Dream",
@@ -28,11 +28,24 @@ export default function Widgets() {
     },
   ];
 
-  const recentActivity = [
-    { text: "Welcome to Dream Journal 2.0!", time: "Just now", icon: "🎉" },
-    { text: "Start recording your dreams", time: "Now", icon: "💭" },
-    { text: "Discover dream patterns with AI", time: "Today", icon: "🔮" },
-  ];
+  const getRecentActivity = () => {
+    if (!stats?.recentDreams || stats.recentDreams.length === 0) {
+      return [
+        { text: "Welcome to Dream Journal 2.0!", time: "Just now", icon: "🎉" },
+        { text: "Start recording your dreams", time: "Now", icon: "💭" },
+        { text: "Discover dream patterns with AI", time: "Today", icon: "🔮" },
+      ];
+    }
+    
+    return stats.recentDreams.map(dream => ({
+      text: dream.title,
+      time: new Date(dream.createdAt).toLocaleDateString(),
+      icon: "💭",
+      id: dream._id
+    }));
+  };
+
+  const recentActivity = getRecentActivity();
 
   return (
     <div className="space-y-6">
@@ -40,7 +53,7 @@ export default function Widgets() {
       <div className="animate-fade-in">
         <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quickActions.map((action, idx) => (
+          {quickActions.map((action) => (
             <Link key={action.href} href={action.href}>
               <Card className="h-full cursor-pointer hover:scale-[1.02] transition-transform duration-200">
                 <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${action.gradient} flex items-center justify-center mb-4`}>
@@ -63,15 +76,23 @@ export default function Widgets() {
             Recent Activity
           </h3>
           <div className="space-y-3">
-            {recentActivity.map((activity, idx) => (
-              <div key={idx} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-800/30 transition-colors duration-200">
-                <span className="text-xl">{activity.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-300">{activity.text}</p>
-                  <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
+            {loading ? (
+              <div className="text-center py-8 text-slate-400">Loading...</div>
+            ) : (
+              recentActivity.map((activity, idx) => (
+                <Link 
+                  key={activity.id || idx} 
+                  href={activity.id ? `/dashboard/dreams/${activity.id}` : "#"}
+                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-800/30 transition-colors duration-200"
+                >
+                  <span className="text-xl">{activity.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-300 truncate">{activity.text}</p>
+                    <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </Card>
 
@@ -105,18 +126,22 @@ export default function Widgets() {
           Dream Statistics
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Total Dreams", value: "0", icon: "📖", color: "blue" },
-            { label: "This Week", value: "0", icon: "📅", color: "purple" },
-            { label: "Analyzed", value: "0", icon: "🤖", color: "pink" },
-            { label: "Patterns Found", value: "0", icon: "🔍", color: "cyan" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors duration-200">
-              <p className="text-2xl mb-2">{stat.icon}</p>
-              <p className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</p>
-              <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
-            </div>
-          ))}
+          {loading ? (
+            <div className="col-span-4 text-center py-8 text-slate-400">Loading stats...</div>
+          ) : (
+            [
+              { label: "Total Dreams", value: stats?.totalDreams || 0, icon: "📖", color: "blue" },
+              { label: "This Week", value: stats?.thisWeek || 0, icon: "📅", color: "purple" },
+              { label: "Analyzed", value: stats?.analyzed || 0, icon: "🤖", color: "pink" },
+              { label: "Patterns Found", value: stats?.totalDreams > 5 ? Math.floor(stats.totalDreams / 3) : 0, icon: "🔍", color: "cyan" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors duration-200">
+                <p className="text-2xl mb-2">{stat.icon}</p>
+                <p className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</p>
+                <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
+              </div>
+            ))
+          )}
         </div>
       </Card>
     </div>

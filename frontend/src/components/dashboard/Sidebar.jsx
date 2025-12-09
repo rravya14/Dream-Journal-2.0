@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { authApi } from "@/lib/api";
 
 export default function Sidebar({ userName = "User" }) {
   const router = useRouter();
@@ -11,28 +12,24 @@ export default function Sidebar({ userName = "User" }) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: "🏠", href: "/dashboard" },
     { id: "dreams", label: "Dreams", icon: "🌙", href: "/dashboard/dreams" },
-    { id: "tags", label: "Tags", icon: "🏷️", href: "/dashboard/tags" },
-    { id: "analytics", label: "Analytics", icon: "📊", href: "/dashboard/analytics" },
-    { id: "summary", label: "Summary", icon: "📝", href: "/dashboard/summary" },
+    { id: "tags", label: "Stickers", icon: "🔖", href: "/dashboard/tags" },
+    { id: "analytics", label: "Analytics", icon: "🔎", href: "/dashboard/analytics" },
+    { id: "summary", label: "Summary", icon: "🎯", href: "/dashboard/summary" },
   ];
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        router.push('/login');
-      }
+      await authApi.logout();
+      router.push('/');
     } catch (error) {
-      // Handle logout error silently
+      console.error('Logout failed:', error);
+      // Still redirect even if API fails
+      router.push('/');
     }
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 glass-card border-r border-slate-700/50 z-50">
+    <aside className="fixed left-0 top-0 h-screen w-64 glass-card border-r border-slate-700/50 z-50 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
@@ -67,22 +64,25 @@ export default function Sidebar({ userName = "User" }) {
         ))}
       </nav>
 
-      {/* User Profile */}
-      <div className="p-6 border-t border-slate-700/50">
-        <div className="flex items-center gap-3">
+      {/* User Profile at Bottom */}
+      <div className="p-4 border-t border-slate-700/50 space-y-3">
+        <div className="flex items-center gap-3 px-2">
           <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
             {userName.charAt(0).toUpperCase()}
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">{userName}</p>
-            <button 
-              onClick={handleLogout}
-              className="text-xs text-slate-400 hover:text-blue-400 transition-colors"
-            >
-              Logout
-            </button>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">{userName}</p>
+            <p className="text-xs text-slate-400">Account</p>
           </div>
         </div>
+        
+        {/* Separate Logout Button */}
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all border border-red-500/20 hover:border-red-500/30"
+        >
+          <span className="font-medium">Logout</span>
+        </button>
       </div>
     </aside>
   );
